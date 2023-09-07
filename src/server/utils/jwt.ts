@@ -1,8 +1,5 @@
 import jwt from "jsonwebtoken";
 
-const decodeBase64 = (input: string) =>
-  Buffer.from(input, "base64").toString("ascii");
-
 export const signJwt = (userId: number) =>
   new Promise((res, rej) => {
     jwt.sign(

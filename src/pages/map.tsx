@@ -71,14 +71,9 @@ const Map = ({
   const [popupCoords, setPopupCoords] = useState({ longitude: 0, latitude: 0 });
   const [popupTitle, setPopupTitle] = useState("");
 
-  const { data: { LocalGovernmentArea: LGAs } = {}, isLoading: lgasLoading } =
+  const { data: { LocalGovernmentArea: LGAs } = {} } =
     api.data.getLGAs.useQuery();
-  const { data: scarcityLevels, isLoading: scarcityLevelsLoading } =
-    api.data.getScarcityLevels.useQuery();
-  // const {
-  //   data: { LocalGovernmentArea: LGAsRed } = {},
-  //   isLoading: lgasRedLoading,
-  // } = api.data.getLGAsRed.useQuery();
+  const { data: scarcityLevels } = api.data.getScarcityLevels.useQuery();
 
   const sortedLGAs = useMemo(() => {
     if (!scarcityLevels || !LGAs) {

@@ -54,11 +54,10 @@ const Map = ({
   isAuthenticated,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   useHydrateAtoms([[loggedInAtom, isAuthenticated]]);
-  const [selectedCouncil, setSelectedCouncil] = useState(0);
+  const [selectedCouncil, setSelectedCouncil] = useState("");
 
   const [showPopup, setShowPopup] = useState(false);
   const [popupCoords, setPopupCoords] = useState({ longitude: 0, latitude: 0 });
-  const [popupTitle, setPopupTitle] = useState("");
 
   const { data } = api.data.getLGAs.useQuery();
   const { data: scarcityLevels } = api.data.getScarcityLevels.useQuery();
@@ -110,11 +109,9 @@ const Map = ({
     setShowPopup(!showPopup);
     const { lng: longitude, lat: latitude } = e.lngLat;
     setPopupCoords({ longitude, latitude });
-    setPopupTitle(e.features?.[0]?.properties?.councilname as string);
-  };
-
-  const handleClickLGA = () => {
-    setShowPopup(true);
+    setSelectedCouncil(
+      !showPopup ? (e.features?.[0]?.properties?.councilname as string) : ""
+    );
   };
 
   return (
@@ -153,10 +150,10 @@ const Map = ({
                 key={lga.properties.councilname}
                 tw="flex flex-col p-4 rounded cursor-pointer select-none hover:bg-gray-50"
                 css={{
-                  ...(selectedCouncil === i &&
+                  ...(selectedCouncil === lga.properties.councilname &&
                     tw`bg-violet-50 hover:bg-violet-100`),
                 }}
-                onClick={() => setSelectedCouncil(i)}
+                onClick={() => setSelectedCouncil(lga.properties.councilname)}
               >
                 <p tw="flex items-center font-medium gap-1">
                   {i < LGAsNeedsNotMet.features!.length && (
@@ -249,8 +246,12 @@ const Map = ({
                 anchor="bottom"
                 onClose={() => setShowPopup(false)}
               >
-                <h4 tw="font-bold">{popupTitle}</h4>
-                <p>TODO</p>
+                <h4 tw="font-bold">{selectedCouncil}</h4>
+                <p>Score: {scarcityLevels![selectedCouncil]}</p>
+                <p>
+                  Shortage level:{" "}
+                  {scarcityLevels![selectedCouncil]! >= 3.5 ? "low" : "high"}
+                </p>
               </StyledPopup>
             </Transition>
           )}

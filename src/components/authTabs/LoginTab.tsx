@@ -35,7 +35,7 @@ const LoginTab = () => {
   const { mutate, error } = api.user.login.useMutation({
     onSuccess: (data) => {
       setLoggedIn(true);
-      void router.push(params.get("next") ?? "/");
+      void router.push(params.get("next") ?? "/map");
       pushToast("Logged In", "Logged in succesfully", "success");
     },
   });

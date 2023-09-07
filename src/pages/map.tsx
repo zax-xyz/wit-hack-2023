@@ -112,7 +112,7 @@ const Map = ({
                   <ArrowRightOnRectangleIcon tw="w-6 h-6" />
                 </Button>
               ) : (
-                <Button as={Link} href="/auth?next=/map">
+                <Button as={Link} href="/auth">
                   Login
                 </Button>
               )}

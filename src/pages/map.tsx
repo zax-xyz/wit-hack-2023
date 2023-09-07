@@ -75,6 +75,7 @@ const Map = ({
   const [loggedIn, setLoggedIn] = useAtom(loggedInAtom);
 
   const [showPopup, setShowPopup] = useState(false);
+  const [showMyProfilePopup, setShowMyProfilePopup] = useState(false);
   const [popupCoords, setPopupCoords] = useState({ longitude: 0, latitude: 0 });
   const [popupTitle, setPopupTitle] = useState("");
 
@@ -112,10 +113,16 @@ const Map = ({
             </Link>
             <div tw="flex ml-auto gap-2">
               {loggedIn ? (
-                <Button onClick={() => logout()}>
-                  Logout
-                  <ArrowRightOnRectangleIcon tw="w-6 h-6" />
-                </Button>
+                <>
+                  <Button onClick={() => logout()}>
+                    Logout
+                    <ArrowRightOnRectangleIcon tw="w-6 h-6" />
+                  </Button>
+                  <Button onClick={() => setShowMyProfilePopup(true)}>
+                    My Profile
+                    <UserCircleIcon tw="w-6 h-6" />
+                  </Button>
+                </>
               ) : (
                 <Button as={Link} href="/auth">
                   Login

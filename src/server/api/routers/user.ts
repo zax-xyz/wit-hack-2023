@@ -1,6 +1,10 @@
 import { z } from "zod";
 import argon2 from "argon2";
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import {
+  authorizedProcedure,
+  createTRPCRouter,
+  publicProcedure,
+} from "~/server/api/trpc";
 import { prisma } from "~/server/db";
 import { TRPCError } from "@trpc/server";
 import { getCookies, setCookie } from "cookies-next";
@@ -69,4 +73,13 @@ export const userRouter = createTRPCRouter({
         });
       }
     }),
+
+  logout: authorizedProcedure.mutation(({ ctx: { req, res } }) => {
+    setCookie("access_token", "", { req, res });
+    setCookie("authenticated", false, { req, res });
+
+    return {
+      status: "success",
+    };
+  }),
 });

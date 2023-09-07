@@ -6,7 +6,7 @@
  * TL;DR - This is where all the tRPC server stuff is created and plugged in. The pieces you will
  * need to use are documented accordingly near the end.
  */
-import { initTRPC } from "@trpc/server";
+import { TRPCError, initTRPC } from "@trpc/server";
 import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
 import superjson from "superjson";
 import { ZodError } from "zod";
@@ -14,6 +14,7 @@ import { prisma } from "~/server/db";
 import { getSession } from "../utils/getSession";
 import { type Session } from "next-session/lib/types";
 import { type NextApiRequest, type NextApiResponse } from "next";
+import { verifyJwt } from "../utils/jwt";
 
 /**
  * 1. CONTEXT
@@ -104,3 +105,34 @@ export const createTRPCRouter = t.router;
  * are logged in.
  */
 export const publicProcedure = t.procedure;
+
+export const authorizedProcedure = publicProcedure.use(
+  async ({ ctx, next }) => {
+    const token = ctx.req.cookies.access_token;
+    if (token === undefined) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "Invalid token",
+      });
+    }
+
+    const { userId } = await verifyJwt<{ userId: number; iat: number }>(
+      token
+    ).catch(() => {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "Invalid token",
+      });
+    });
+
+    const user = await prisma.user.findFirst({ where: { id: userId } });
+    if (user === null) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "Invalid token",
+      });
+    }
+
+    return next({ ctx: { user } });
+  }
+);

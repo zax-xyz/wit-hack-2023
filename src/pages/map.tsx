@@ -84,6 +84,12 @@ const Map = ({
     isLoading: lgasRedLoading,
   } = api.data.getLGAsRed.useQuery();
 
+  const { mutate: logout } = api.user.logout.useMutation({
+    onSuccess: () => {
+      setLoggedIn(false);
+    },
+  });
+
   const togglePopup = (e: MapLayerMouseEvent) => {
     setShowPopup(!showPopup);
     const { lng: longitude, lat: latitude } = e.lngLat;
@@ -101,7 +107,7 @@ const Map = ({
             </Link>
             <div tw="flex ml-auto gap-2">
               {loggedIn ? (
-                <Button>
+                <Button onClick={() => logout()}>
                   Logout
                   <ArrowRightOnRectangleIcon tw="w-6 h-6" />
                 </Button>

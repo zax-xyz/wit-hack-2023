@@ -1,18 +1,29 @@
-import Link from "next/link";
+import {
+  type GetServerSideProps,
+  type InferGetServerSidePropsType,
+} from "next";
 import React from "react";
 import Button from "~/components/Button";
+import Navbar from "~/components/Navbar";
+import { getIsAuthenticated } from "~/utils/getUser";
 
-const contactSuppliers = () => {
+export const getServerSideProps: GetServerSideProps<{
+  isAuthenticated: boolean;
+  // eslint-disable-next-line @typescript-eslint/require-await
+}> = async ({ req, res }) => {
+  return {
+    props: {
+      isAuthenticated: getIsAuthenticated(req, res),
+    },
+  };
+};
+
+const contactSuppliers = ({
+  isAuthenticated,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   return (
     <div tw="flex flex-col flex-1 h-screen">
-      <header tw="z-20 p-4 bg-gradient-to-br from-blue-50 to-purple-50 shadow-md">
-        <div tw="mx-auto max-w-7xl">
-          <div tw="flex items-center"></div>
-          <Link tw="text-xl" href="/">
-            Plastech
-          </Link>
-        </div>
-      </header>
+      <Navbar isAuthenticated={isAuthenticated} />
       <div tw="m-14">
         <div tw="flex justify-between">
           <h1 tw="text-2xl">Suppliers Near Me 🩺</h1>

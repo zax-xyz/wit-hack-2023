@@ -26,9 +26,6 @@ const schema = z
 type Schema = z.infer<typeof schema>;
 
 const SignupTab = () => {
-  const [message, setMessage] = useState("");
-  const router = useRouter();
-
   const {
     register,
     formState: { errors },
@@ -79,7 +76,6 @@ const SignupTab = () => {
       </Button>
 
       {error && <FormErrorMsg>{error.message}</FormErrorMsg>}
-      {message && <FormErrorMsg>{message}</FormErrorMsg>}
     </form>
   );
 };

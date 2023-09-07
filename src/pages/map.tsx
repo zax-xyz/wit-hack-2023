@@ -17,7 +17,6 @@ import "mapbox-gl/dist/mapbox-gl.css";
 
 import Transition from "~/components/Transition";
 import { api } from "~/utils/api";
-import { useAtom } from "jotai";
 import { useHydrateAtoms } from "jotai/utils";
 import { loggedInAtom } from "~/atoms/user";
 import {

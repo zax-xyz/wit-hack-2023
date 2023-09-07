@@ -7,7 +7,7 @@ import {
 } from "~/server/api/trpc";
 import { prisma } from "~/server/db";
 import { TRPCError } from "@trpc/server";
-import { getCookies, setCookie } from "cookies-next";
+import { setCookie } from "cookies-next";
 import { signJwt } from "~/server/utils/jwt";
 
 export const userRouter = createTRPCRouter({

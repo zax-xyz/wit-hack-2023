@@ -22,7 +22,8 @@ type Schema = z.infer<typeof schema>;
 
 const LoginTab = () => {
   const router = useRouter();
-  const [loggedIn, setLoggedIn] = useAtom(loggedInAtom);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_, setLoggedIn] = useAtom(loggedInAtom);
 
   const params = useSearchParams();
 
@@ -33,7 +34,7 @@ const LoginTab = () => {
   } = useForm<Schema>({ resolver: zodResolver(schema) });
 
   const { mutate, error } = api.user.login.useMutation({
-    onSuccess: (data) => {
+    onSuccess: () => {
       setLoggedIn(true);
       void router.push(params.get("next") ?? "/map");
       pushToast("Logged In", "Logged in succesfully", "success");

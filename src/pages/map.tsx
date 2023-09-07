@@ -34,6 +34,7 @@ import {
 } from "next";
 import { getIsAuthenticated } from "~/utils/getUser";
 import { OpenInNew } from "@mui/icons-material";
+import Navbar from "~/components/Navbar";
 
 const StyledPopup = styled(Popup, {
   ...tw`filter drop-shadow-md`,
@@ -111,12 +112,6 @@ const Map = ({
     [LGAs, scarcityLevels]
   );
 
-  const { mutate: logout } = api.user.logout.useMutation({
-    onSuccess: () => {
-      setLoggedIn(false);
-    },
-  });
-
   const togglePopup = (e: MapLayerMouseEvent) => {
     setShowPopup(!showPopup);
     const { lng: longitude, lat: latitude } = e.lngLat;
@@ -130,65 +125,7 @@ const Map = ({
 
   return (
     <div tw="flex flex-col flex-1 h-screen">
-      <header tw="z-20 p-4 bg-gradient-to-br from-blue-50 to-purple-50 shadow-md">
-        <div tw="mx-auto max-w-7xl">
-          <div tw="flex items-center">
-            <Link tw="text-xl" href="/">
-              Plastech
-            </Link>
-            <div tw="flex ml-auto gap-2">
-              {loggedIn ? (
-                <>
-                  <Button onClick={() => logout()}>
-                    Logout
-                    <ArrowRightOnRectangleIcon tw="w-6 h-6" />
-                  </Button>
-                  <Button onClick={() => setShowMyProfilePopup(true)}>
-                    My Profile
-                    <UserCircleIcon tw="w-6 h-6" />
-                  </Button>
-                </>
-              ) : (
-                <Button as={Link} href="/auth?next=/map">
-                  Login
-                </Button>
-              )}
-            </div>
-          </div>
-          <div tw="flex py-4">
-            <div tw="flex w-full text-black bg-white border border-gray-200 divide-x divide-gray-200 rounded-md shadow-sm">
-              {/* 
-              <select tw="pr-8 bg-transparent border-none focus-within:(border-violet-300 outline-none ring ring-violet-200/50) rounded-l-md">
-                <option>All Categories</option>
-              </select>
-              */}
-              <Input
-                type="text"
-                tw="flex-1 w-auto rounded-none shadow-none bg-transparent rounded-l-md"
-                placeholder="I'm supplying..."
-                nav
-              />
-              <div tw="relative flex">
-                <div tw="absolute inset-y-0 left-0 flex items-center pl-1.5">
-                  <MapPinIcon tw="w-5 text-gray-400" />
-                </div>
-                <Input
-                  type="text"
-                  tw="w-auto rounded-none pl-7 bg-transparent"
-                  defaultValue="New South Wales, AU"
-                  nav
-                />
-              </div>
-              <button
-                type="button"
-                tw="p-2 focus-visible:(border-violet-300 outline-none ring ring-violet-200/50) rounded-r-md"
-              >
-                <MagnifyingGlassIcon tw="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Navbar showInputs />
       <div tw="flex h-full min-h-0">
         <div tw="flex flex-col flex-shrink-0 w-96 h-full overflow-y-auto shadow-md z-10 bg-white">
           <h2 tw="text-xl p-4">Local Government Areas</h2>

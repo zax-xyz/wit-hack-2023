@@ -82,4 +82,12 @@ export const userRouter = createTRPCRouter({
       status: "success",
     };
   }),
+
+  self: authorizedProcedure.query(({ ctx }) => {
+    const user = ctx.user;
+    return {
+      name: user.name,
+      email: user.email,
+    };
+  }),
 });

@@ -8,7 +8,7 @@ import { z } from "zod";
 import Button from "~/components/Button";
 import FormErrorMsg from "~/components/FormErrorMsg";
 import { RHFInput } from "~/components/Input";
-// import { pushToast } from 'utils';
+import { pushToast } from "~/utils/toast";
 import { api } from "~/utils/api";
 
 const schema = z
@@ -37,13 +37,7 @@ const SignupTab = () => {
 
   const { mutate, error } = api.user.register.useMutation({
     onSuccess: () => {
-      // setMessage(
-      //   "Please wait for an email to be sent for a verification link to activate your account."
-      // );
-      // pushToast(
-      //   'Sign Up',
-      //   'Please wait for an email to be sent for a verification link to activate your account.',
-      // );
+      pushToast("Sign Up", "Sign up successful. You may now log in.");
     },
   });
 

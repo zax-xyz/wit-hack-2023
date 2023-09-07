@@ -7,7 +7,7 @@ import { z } from "zod";
 import Button from "~/components/Button";
 import FormErrorMsg from "~/components/FormErrorMsg";
 import { RHFInput } from "~/components/Input";
-import { pushToast } from "utils";
+import { pushToast } from "~/utils/toast";
 import { useRouter } from "next/router";
 import { api } from "~/utils/api";
 import { useAtom } from "jotai";
@@ -36,7 +36,7 @@ const LoginTab = () => {
     onSuccess: (data) => {
       setLoggedIn(true);
       void router.push(params.get("next") ?? "/");
-      // pushToast("Logged In", "Logged in succesfully", "success");
+      pushToast("Logged In", "Logged in succesfully", "success");
     },
   });
 

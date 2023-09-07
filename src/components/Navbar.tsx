@@ -35,7 +35,7 @@ const Navbar = ({ showInputs = false, isAuthenticated }: Props) => {
     <header tw="z-20 p-4 bg-gradient-to-br from-blue-50 to-purple-50 shadow-md">
       <div tw="mx-auto max-w-7xl">
         <div tw="flex items-center">
-          <Link tw="text-xl" href="/">
+          <Link tw="text-xl" href={isAuthenticated ? "/map" : "/"}>
             Plastech
           </Link>
           <div tw="flex ml-auto gap-2">

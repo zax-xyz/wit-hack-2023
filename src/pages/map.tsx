@@ -32,6 +32,7 @@ import {
   type InferGetServerSidePropsType,
 } from "next";
 import { getIsAuthenticated } from "~/utils/getUser";
+import { OpenInNew } from "@mui/icons-material";
 
 const StyledPopup = styled(Popup, {
   ...tw`filter drop-shadow-md`,
@@ -47,13 +48,13 @@ const StyledPopup = styled(Popup, {
 
 const sidebarLGAs = [
   { name: "Bathurst Regional Council", highDemand: true, active: true },
-  { name: "Lithgow City Council", highDemand: true },
-  { name: "Oberon Council", highDemand: false },
-  { name: "Blayney Shire Council", highDemand: false },
-  { name: "Cabonne Shire Council", highDemand: false },
-  { name: "Orange City Council", highDemand: false },
-  { name: "Mid-Western Regional Council", highDemand: false },
-  { name: "Cowra Shire Council", highDemand: false },
+  { name: "Lithgow City Council", highDemand: true, active: false },
+  { name: "Oberon Council", highDemand: false, active: false },
+  { name: "Blayney Shire Council", highDemand: false, active: false },
+  { name: "Cabonne Shire Council", highDemand: false, active: false },
+  { name: "Orange City Council", highDemand: false, active: false },
+  { name: "Mid-Western Regional Council", highDemand: false, active: false },
+  { name: "Cowra Shire Council", highDemand: false, active: false },
 ];
 
 export const getServerSideProps: GetServerSideProps<{
@@ -95,6 +96,10 @@ const Map = ({
     const { lng: longitude, lat: latitude } = e.lngLat;
     setPopupCoords({ longitude, latitude });
     setPopupTitle(e.features?.[0]?.properties?.councilname as string);
+  };
+
+  const handleClickLGA = () => {
+    setShowPopup(true);
   };
 
   return (
@@ -185,6 +190,7 @@ const Map = ({
                 key={name}
                 tw="flex flex-col p-4 rounded cursor-pointer select-none hover:bg-gray-50"
                 css={{ ...(active && tw`bg-violet-50 hover:bg-violet-100`) }}
+                onClick={handleClickLGA}
               >
                 <p tw="flex items-center font-medium gap-1">
                   {highDemand && (
@@ -195,8 +201,12 @@ const Map = ({
                   )}{" "}
                   {name}, NSW
                 </p>
-                <p>TODO</p>
-                <p css={{ ...(highDemand && tw`text-red-600`) }}>TODO</p>
+                <p>Shortage Level: {highDemand === true ? "HIGH" : "LOW"}</p>
+                <p>Contact Info: {name.split(" ")[0]} Hospital 0412 345 678</p>
+                <a href="https://www.google.com/" tw="underline text-blue-500">
+                  Medical supplies in this LGA
+                  <OpenInNew />
+                </a>
               </div>
             ))
           )}
@@ -250,7 +260,6 @@ const Map = ({
                 onClose={() => setShowPopup(false)}
               >
                 <h4 tw="font-bold">{popupTitle}</h4>
-
                 <p>TODO</p>
               </StyledPopup>
             </Transition>

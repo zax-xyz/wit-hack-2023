@@ -25,6 +25,7 @@ import {
 } from "next";
 import { getIsAuthenticated } from "~/utils/getUser";
 import Navbar from "~/components/Navbar";
+import { type LGAs } from "~/server/api/routers/data";
 
 const StyledPopup = styled(Popup, {
   ...tw`filter drop-shadow-md`,
@@ -59,44 +60,50 @@ const Map = ({
   const [popupCoords, setPopupCoords] = useState({ longitude: 0, latitude: 0 });
   const [popupTitle, setPopupTitle] = useState("");
 
-  const { data: { LocalGovernmentArea: LGAs } = {} } =
-    api.data.getLGAs.useQuery();
+  const { data } = api.data.getLGAs.useQuery();
   const { data: scarcityLevels } = api.data.getScarcityLevels.useQuery();
 
+  const lgas = useMemo(() => {
+    if (!data) {
+      return undefined;
+    }
+    return (JSON.parse(data) as LGAs).LocalGovernmentArea;
+  }, [data]);
+
   const sortedLGAs = useMemo(() => {
-    if (!scarcityLevels || !LGAs) {
-      return LGAs;
+    if (!scarcityLevels || !lgas) {
+      return lgas;
     }
     return {
-      ...LGAs,
-      features: LGAs.features.sort(
+      ...lgas,
+      features: lgas.features.sort(
         (a, b) =>
           scarcityLevels[a.properties.councilname]! -
           scarcityLevels[b.properties.councilname]!
       ),
     };
-  }, [LGAs, scarcityLevels]);
+  }, [lgas, scarcityLevels]);
 
   const LGAsNeedsMet = useMemo(
     () => ({
-      ...LGAs,
-      features: LGAs?.features.filter((f) => {
+      ...lgas,
+      features: lgas?.features.filter((f) => {
         const scarcity = scarcityLevels?.[f.properties.councilname];
         return scarcity !== undefined && scarcity >= 3.5;
       }),
     }),
-    [LGAs, scarcityLevels]
+    [lgas, scarcityLevels]
   );
 
   const LGAsNeedsNotMet = useMemo(
     () => ({
-      ...LGAs,
-      features: LGAs?.features.filter((f) => {
+      ...lgas,
+      features: lgas?.features.filter((f) => {
         const scarcity = scarcityLevels?.[f.properties.councilname];
         return scarcity !== undefined && scarcity < 3.5;
       }),
     }),
-    [LGAs, scarcityLevels]
+    [lgas, scarcityLevels]
   );
 
   const togglePopup = (e: MapLayerMouseEvent) => {

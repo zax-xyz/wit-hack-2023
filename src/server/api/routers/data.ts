@@ -32,7 +32,7 @@ type LGA = {
     wbcode: null;
   };
 };
-type LGAs = {
+export type LGAs = {
   LocalGovernmentArea: {
     type: string;
     features: LGA[];
@@ -92,14 +92,14 @@ const scarcityLevels: Record<string, number> = {
 
 const assetsDir = path.join(process.cwd(), "src/server/assets");
 
-const readJSONFile = async (filename: string) => {
+const readFile = async (filename: string) => {
   const fileContents = await fs.readFile(`${assetsDir}/${filename}`, "utf8");
-  return JSON.parse(fileContents) as unknown;
+  return fileContents;
 };
 
 export const dataRouter = createTRPCRouter({
   getLGAs: publicProcedure.query(async () => {
-    return (await readJSONFile("LGAs.json")) as LGAs;
+    return await readFile("LGAs.json");
   }),
   getScarcityLevels: publicProcedure.query(() => {
     return scarcityLevels;

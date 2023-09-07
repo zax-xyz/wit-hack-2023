@@ -2,12 +2,13 @@
 /* eslint-disable react/jsx-one-expression-per-line */
 import {
   ArrowRightOnRectangleIcon,
+  ArrowTopRightOnSquareIcon,
   ExclamationCircleIcon,
   MagnifyingGlassIcon,
   MapPinIcon,
   UserCircleIcon,
 } from "@heroicons/react/24/outline";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import MapGl, {
   type GeoJSONSourceRaw,
   Layer,
@@ -46,17 +47,6 @@ const StyledPopup = styled(Popup, {
   },
 });
 
-const sidebarLGAs = [
-  { name: "Bathurst Regional Council", highDemand: true, active: true },
-  { name: "Lithgow City Council", highDemand: true, active: false },
-  { name: "Oberon Council", highDemand: false, active: false },
-  { name: "Blayney Shire Council", highDemand: false, active: false },
-  { name: "Cabonne Shire Council", highDemand: false, active: false },
-  { name: "Orange City Council", highDemand: false, active: false },
-  { name: "Mid-Western Regional Council", highDemand: false, active: false },
-  { name: "Cowra Shire Council", highDemand: false, active: false },
-];
-
 export const getServerSideProps: GetServerSideProps<{
   isAuthenticated: boolean;
   // eslint-disable-next-line @typescript-eslint/require-await
@@ -74,17 +64,52 @@ const Map = ({
   useHydrateAtoms([[loggedInAtom, isAuthenticated]]);
   const [loggedIn, setLoggedIn] = useAtom(loggedInAtom);
 
+  const [selectedCouncil, setSelectedCouncil] = useState(0);
+
   const [showPopup, setShowPopup] = useState(false);
   const [showMyProfilePopup, setShowMyProfilePopup] = useState(false);
   const [popupCoords, setPopupCoords] = useState({ longitude: 0, latitude: 0 });
   const [popupTitle, setPopupTitle] = useState("");
 
-  const { data: { LocalGovernmentArea: LGAs } = {}, isLoading: lgasLoading } =
+  const { data: { LocalGovernmentArea: LGAs } = {} } =
     api.data.getLGAs.useQuery();
-  const {
-    data: { LocalGovernmentArea: LGAsRed } = {},
-    isLoading: lgasRedLoading,
-  } = api.data.getLGAsRed.useQuery();
+  const { data: scarcityLevels } = api.data.getScarcityLevels.useQuery();
+
+  const sortedLGAs = useMemo(() => {
+    if (!scarcityLevels || !LGAs) {
+      return LGAs;
+    }
+    return {
+      ...LGAs,
+      features: LGAs.features.sort(
+        (a, b) =>
+          scarcityLevels[a.properties.councilname]! -
+          scarcityLevels[b.properties.councilname]!
+      ),
+    };
+  }, [LGAs, scarcityLevels]);
+
+  const LGAsNeedsMet = useMemo(
+    () => ({
+      ...LGAs,
+      features: LGAs?.features.filter((f) => {
+        const scarcity = scarcityLevels?.[f.properties.councilname];
+        return scarcity !== undefined && scarcity >= 3.5;
+      }),
+    }),
+    [LGAs, scarcityLevels]
+  );
+
+  const LGAsNeedsNotMet = useMemo(
+    () => ({
+      ...LGAs,
+      features: LGAs?.features.filter((f) => {
+        const scarcity = scarcityLevels?.[f.properties.councilname];
+        return scarcity !== undefined && scarcity < 3.5;
+      }),
+    }),
+    [LGAs, scarcityLevels]
+  );
 
   const { mutate: logout } = api.user.logout.useMutation({
     onSuccess: () => {
@@ -124,7 +149,7 @@ const Map = ({
                   </Button>
                 </>
               ) : (
-                <Button as={Link} href="/auth">
+                <Button as={Link} href="/auth?next=/map">
                   Login
                 </Button>
               )}
@@ -167,7 +192,7 @@ const Map = ({
       <div tw="flex h-full min-h-0">
         <div tw="flex flex-col flex-shrink-0 w-96 h-full overflow-y-auto shadow-md z-10 bg-white">
           <h2 tw="text-xl p-4">Local Government Areas</h2>
-          {lgasLoading || lgasRedLoading ? (
+          {!sortedLGAs || !scarcityLevels ? (
             <div
               className="flex flex-1 items-center justify-center"
               role="status"
@@ -192,27 +217,48 @@ const Map = ({
               <span className="sr-only">Loading...</span>
             </div>
           ) : (
-            sidebarLGAs.map(({ name, active, highDemand }) => (
+            sortedLGAs.features.map((lga, i) => (
               <div
-                key={name}
+                key={lga.properties.councilname}
                 tw="flex flex-col p-4 rounded cursor-pointer select-none hover:bg-gray-50"
-                css={{ ...(active && tw`bg-violet-50 hover:bg-violet-100`) }}
+                css={{
+                  ...(selectedCouncil === i &&
+                    tw`bg-violet-50 hover:bg-violet-100`),
+                }}
                 onClick={handleClickLGA}
               >
                 <p tw="flex items-center font-medium gap-1">
-                  {highDemand && (
+                  {i < LGAsNeedsNotMet.features!.length && (
                     <ExclamationCircleIcon
                       strokeWidth={2}
                       tw="w-4 h-4 text-red-600"
                     />
                   )}{" "}
-                  {name}, NSW
+                  {lga.properties.councilname}, NSW
                 </p>
-                <p>Shortage Level: {highDemand === true ? "HIGH" : "LOW"}</p>
-                <p>Contact Info: {name.split(" ")[0]} Hospital 0412 345 678</p>
-                <a href="https://www.google.com/" tw="underline text-blue-500">
+                <p>Score: {scarcityLevels[lga.properties.councilname]}</p>
+                <p
+                  css={{
+                    ...(i < LGAsNeedsNotMet.features!.length &&
+                      tw`text-red-600`),
+                  }}
+                >
+                  In need
+                </p>
+                <p>
+                  Shortage Level:{" "}
+                  {i < LGAsNeedsNotMet.features!.length ? "HIGH" : "LOW"}
+                </p>
+                <p>
+                  Contact Info: {lga.properties.councilname.split(" ")[0]}{" "}
+                  Hospital 0412 345 678
+                </p>
+                <a
+                  href="https://www.google.com/"
+                  tw="underline text-blue-500 flex gap-1"
+                >
                   Medical supplies in this LGA
-                  <OpenInNew />
+                  <ArrowTopRightOnSquareIcon tw="h-5 w-5" />
                 </a>
               </div>
             ))
@@ -230,20 +276,26 @@ const Map = ({
           onClick={togglePopup}
           interactiveLayerIds={["lgas-layer", "lgas-layer-red"]}
         >
-          {LGAs && (
-            <Source type="geojson" data={LGAs as GeoJSONSourceRaw["data"]}>
+          {LGAsNeedsMet && (
+            <Source
+              type="geojson"
+              data={LGAsNeedsMet as GeoJSONSourceRaw["data"]}
+            >
               <Layer
                 id="lgas-layer"
                 type="fill"
                 paint={{
                   "fill-color": "rgba(156, 163, 175, 15%)",
-                  "fill-outline-color": theme`colors.violet.500`,
+                  "fill-outline-color": theme`colors.green.500`,
                 }}
               />
             </Source>
           )}
-          {LGAsRed && (
-            <Source type="geojson" data={LGAsRed as GeoJSONSourceRaw["data"]}>
+          {LGAsNeedsNotMet && (
+            <Source
+              type="geojson"
+              data={LGAsNeedsNotMet as GeoJSONSourceRaw["data"]}
+            >
               <Layer
                 id="lgas-layer-red"
                 type="fill"

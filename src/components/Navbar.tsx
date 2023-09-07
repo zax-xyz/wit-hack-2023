@@ -15,6 +15,8 @@ import { Fragment } from "react";
 import { Popover } from "@headlessui/react";
 import tw, { styled } from "twin.macro";
 import Transition from "~/components/Transition";
+import Image from "next/image";
+import logo from "~/assets/logo.png";
 
 type Props = {
   isAuthenticated: boolean;
@@ -35,8 +37,12 @@ const Navbar = ({ showInputs = false, isAuthenticated }: Props) => {
     <header tw="z-20 p-4 bg-gradient-to-br from-blue-50 to-purple-50 shadow-md">
       <div tw="mx-auto max-w-7xl">
         <div tw="flex items-center">
-          <Link tw="text-xl" href={isAuthenticated ? "/map" : "/"}>
-            Plastech
+          <Link
+            tw="flex items-center gap-2 text-xl"
+            href={isAuthenticated ? "/map" : "/"}
+          >
+            <Image src={logo} alt="MediLink Logo" width={24} height={24} />
+            MediLink
           </Link>
           <div tw="flex ml-auto gap-2">
             {loggedIn ? (

@@ -29,7 +29,7 @@ const productInventory = ({
       </Head>
       <div tw="flex flex-col flex-1 h-screen">
         <Navbar isAuthenticated={isAuthenticated} />
-        <div tw="m-14">
+        <div tw="max-w-7xl w-full px-4 py-6 mx-auto">
           <div tw="flex justify-between">
             <h1 tw="text-2xl">My Product Inventory</h1>
             <Button>Filter</Button>

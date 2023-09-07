@@ -2,6 +2,7 @@
 /* eslint-disable react/jsx-one-expression-per-line */
 import {
   ArrowRightOnRectangleIcon,
+  ArrowTopRightOnSquareIcon,
   ExclamationCircleIcon,
   MagnifyingGlassIcon,
   MapPinIcon,
@@ -32,6 +33,7 @@ import {
   type InferGetServerSidePropsType,
 } from "next";
 import { getIsAuthenticated } from "~/utils/getUser";
+import { OpenInNew } from "@mui/icons-material";
 
 const StyledPopup = styled(Popup, {
   ...tw`filter drop-shadow-md`,
@@ -44,17 +46,6 @@ const StyledPopup = styled(Popup, {
     "& button": tw`text-lg px-2 py-1`,
   },
 });
-
-const sidebarLGAs = [
-  { name: "Bathurst Regional Council", highDemand: true, active: true },
-  { name: "Lithgow City Council", highDemand: true },
-  { name: "Oberon Council", highDemand: false },
-  { name: "Blayney Shire Council", highDemand: false },
-  { name: "Cabonne Shire Council", highDemand: false },
-  { name: "Orange City Council", highDemand: false },
-  { name: "Mid-Western Regional Council", highDemand: false },
-  { name: "Cowra Shire Council", highDemand: false },
-];
 
 export const getServerSideProps: GetServerSideProps<{
   isAuthenticated: boolean;
@@ -76,6 +67,7 @@ const Map = ({
   const [selectedCouncil, setSelectedCouncil] = useState(0);
 
   const [showPopup, setShowPopup] = useState(false);
+  const [showMyProfilePopup, setShowMyProfilePopup] = useState(false);
   const [popupCoords, setPopupCoords] = useState({ longitude: 0, latitude: 0 });
   const [popupTitle, setPopupTitle] = useState("");
 
@@ -137,6 +129,10 @@ const Map = ({
     setPopupTitle(e.features?.[0]?.properties?.councilname as string);
   };
 
+  const handleClickLGA = () => {
+    setShowPopup(true);
+  };
+
   return (
     <div tw="flex flex-col flex-1 h-screen">
       <header tw="z-20 p-4 bg-gradient-to-br from-blue-50 to-purple-50 shadow-md">
@@ -147,10 +143,16 @@ const Map = ({
             </Link>
             <div tw="flex ml-auto gap-2">
               {loggedIn ? (
-                <Button onClick={() => logout()}>
-                  Logout
-                  <ArrowRightOnRectangleIcon tw="w-6 h-6" />
-                </Button>
+                <>
+                  <Button onClick={() => logout()}>
+                    Logout
+                    <ArrowRightOnRectangleIcon tw="w-6 h-6" />
+                  </Button>
+                  <Button onClick={() => setShowMyProfilePopup(true)}>
+                    My Profile
+                    <UserCircleIcon tw="w-6 h-6" />
+                  </Button>
+                </>
               ) : (
                 <Button as={Link} href="/auth?next=/map">
                   Login
@@ -228,6 +230,7 @@ const Map = ({
                   ...(selectedCouncil === i &&
                     tw`bg-violet-50 hover:bg-violet-100`),
                 }}
+                onClick={handleClickLGA}
               >
                 <p tw="flex items-center font-medium gap-1">
                   {i < LGAsNeedsNotMet.features!.length && (
@@ -247,6 +250,21 @@ const Map = ({
                 >
                   In need
                 </p>
+                <p>
+                  Shortage Level:{" "}
+                  {i < LGAsNeedsNotMet.features!.length ? "HIGH" : "LOW"}
+                </p>
+                <p>
+                  Contact Info: {lga.properties.councilname.split(" ")[0]}{" "}
+                  Hospital 0412 345 678
+                </p>
+                <a
+                  href="https://www.google.com/"
+                  tw="underline text-blue-500 flex gap-1"
+                >
+                  Medical supplies in this LGA
+                  <ArrowTopRightOnSquareIcon tw="h-5 w-5" />
+                </a>
               </div>
             ))
           )}
@@ -306,7 +324,6 @@ const Map = ({
                 onClose={() => setShowPopup(false)}
               >
                 <h4 tw="font-bold">{popupTitle}</h4>
-
                 <p>TODO</p>
               </StyledPopup>
             </Transition>

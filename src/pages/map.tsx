@@ -1,12 +1,8 @@
 /* eslint-disable object-curly-newline */
 /* eslint-disable react/jsx-one-expression-per-line */
 import {
-  ArrowRightOnRectangleIcon,
   ArrowTopRightOnSquareIcon,
   ExclamationCircleIcon,
-  MagnifyingGlassIcon,
-  MapPinIcon,
-  UserCircleIcon,
 } from "@heroicons/react/24/outline";
 import { useMemo, useState } from "react";
 import MapGl, {
@@ -19,21 +15,16 @@ import MapGl, {
 import tw, { styled, theme } from "twin.macro";
 import "mapbox-gl/dist/mapbox-gl.css";
 
-import Input from "~/components/Input";
-// import logo from "../../logo.png";
 import Transition from "~/components/Transition";
-import Link from "next/link";
 import { api } from "~/utils/api";
 import { useAtom } from "jotai";
 import { useHydrateAtoms } from "jotai/utils";
 import { loggedInAtom } from "~/atoms/user";
-import Button from "~/components/Button";
 import {
   type GetServerSideProps,
   type InferGetServerSidePropsType,
 } from "next";
 import { getIsAuthenticated } from "~/utils/getUser";
-import { OpenInNew } from "@mui/icons-material";
 import Navbar from "~/components/Navbar";
 
 const StyledPopup = styled(Popup, {
@@ -63,12 +54,9 @@ const Map = ({
   isAuthenticated,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   useHydrateAtoms([[loggedInAtom, isAuthenticated]]);
-  const [loggedIn, setLoggedIn] = useAtom(loggedInAtom);
-
   const [selectedCouncil, setSelectedCouncil] = useState(0);
 
   const [showPopup, setShowPopup] = useState(false);
-  const [showMyProfilePopup, setShowMyProfilePopup] = useState(false);
   const [popupCoords, setPopupCoords] = useState({ longitude: 0, latitude: 0 });
   const [popupTitle, setPopupTitle] = useState("");
 
@@ -125,7 +113,7 @@ const Map = ({
 
   return (
     <div tw="flex flex-col flex-1 h-screen">
-      <Navbar showInputs />
+      <Navbar isAuthenticated={isAuthenticated} showInputs />
       <div tw="flex h-full min-h-0">
         <div tw="flex flex-col flex-shrink-0 w-96 h-full overflow-y-auto shadow-md z-10 bg-white">
           <h2 tw="text-xl p-4">Local Government Areas</h2>

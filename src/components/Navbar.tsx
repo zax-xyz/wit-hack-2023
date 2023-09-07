@@ -7,39 +7,21 @@ import {
 import Link from "next/link";
 import Input from "~/components/Input";
 import Button from "~/components/Button";
-import {
-  type GetServerSideProps,
-  type InferGetServerSidePropsType,
-} from "next";
-import { getIsAuthenticated } from "~/utils/getUser";
 import { useHydrateAtoms } from "jotai/utils";
 import { useAtom } from "jotai";
 import { loggedInAtom } from "~/atoms/user";
 import { api } from "~/utils/api";
-import { Fragment, useState } from "react";
+import { Fragment } from "react";
 import { Popover } from "@headlessui/react";
 import tw, { styled } from "twin.macro";
 import Transition from "~/components/Transition";
 
 type Props = {
+  isAuthenticated: boolean;
   showInputs?: boolean;
 };
 
-export const getServerSideProps: GetServerSideProps<{
-  isAuthenticated: boolean;
-  // eslint-disable-next-line @typescript-eslint/require-await
-}> = async ({ req, res }) => {
-  return {
-    props: {
-      isAuthenticated: getIsAuthenticated(req, res),
-    },
-  };
-};
-
-const Navbar = ({
-  showInputs = false,
-  isAuthenticated,
-}: InferGetServerSidePropsType<typeof getServerSideProps> & Props) => {
+const Navbar = ({ showInputs = false, isAuthenticated }: Props) => {
   useHydrateAtoms([[loggedInAtom, isAuthenticated]]);
   const [loggedIn, setLoggedIn] = useAtom(loggedInAtom);
 
@@ -112,12 +94,11 @@ const Navbar = ({
 };
 
 const ProfileButton = () => {
-  const [showMyProfilePopup, setShowMyProfilePopup] = useState(false);
   const { data } = api.user.self.useQuery();
 
   return (
     <Popover tw="relative z-10">
-      <Button as={Popover.Button} onClick={() => setShowMyProfilePopup(true)}>
+      <Button as={Popover.Button}>
         My Profile
         <UserCircleIcon tw="w-6 h-6" />
       </Button>

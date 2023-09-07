@@ -149,7 +149,7 @@ const Map = ({
                   ...(selectedCouncil === i &&
                     tw`bg-violet-50 hover:bg-violet-100`),
                 }}
-                onClick={handleClickLGA}
+                onClick={() => setSelectedCouncil(i)}
               >
                 <p tw="flex items-center font-medium gap-1">
                   {i < LGAsNeedsNotMet.features!.length && (

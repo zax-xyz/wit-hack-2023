@@ -101,15 +101,6 @@ export const dataRouter = createTRPCRouter({
   getLGAs: publicProcedure.query(async () => {
     return (await readJSONFile("LGAs.json")) as LGAs;
   }),
-  getLGAsRed: publicProcedure.query(async () => {
-    // return {
-    //   LocalGovernmentArea: {
-    //     type: "FeatureCollection",
-    //     features: [],
-    //   },
-    // };
-    return (await readJSONFile("LGAs_red.json")) as LGAs;
-  }),
   getScarcityLevels: publicProcedure.query(() => {
     return scarcityLevels;
   }),

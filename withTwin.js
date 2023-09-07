@@ -37,6 +37,7 @@ module.exports = function withTwin(
                   require.resolve("@babel/plugin-syntax-typescript"),
                   { isTSX: true },
                 ],
+                require.resolve("jotai/babel/plugin-react-refresh"),
               ],
             },
           },

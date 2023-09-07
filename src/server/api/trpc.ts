@@ -11,6 +11,9 @@ import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
 import superjson from "superjson";
 import { ZodError } from "zod";
 import { prisma } from "~/server/db";
+import { getSession } from "../utils/getSession";
+import { type Session } from "next-session/lib/types";
+import { type NextApiRequest, type NextApiResponse } from "next";
 
 /**
  * 1. CONTEXT
@@ -20,7 +23,11 @@ import { prisma } from "~/server/db";
  * These allow you to access things when processing a request, like the database, the session, etc.
  */
 
-type CreateContextOptions = Record<string, never>;
+type CreateContextOptions = {
+  session: Session;
+  req: NextApiRequest;
+  res: NextApiResponse;
+};
 
 /**
  * This helper generates the "internals" for a tRPC context. If you need to use it, you can export
@@ -32,8 +39,11 @@ type CreateContextOptions = Record<string, never>;
  *
  * @see https://create.t3.gg/en/usage/trpc#-serverapitrpcts
  */
-const createInnerTRPCContext = (_opts: CreateContextOptions) => {
+const createInnerTRPCContext = (opts: CreateContextOptions) => {
   return {
+    session: opts.session,
+    req: opts.req,
+    res: opts.res,
     prisma,
   };
 };
@@ -44,8 +54,10 @@ const createInnerTRPCContext = (_opts: CreateContextOptions) => {
  *
  * @see https://trpc.io/docs/context
  */
-export const createTRPCContext = (_opts: CreateNextContextOptions) => {
-  return createInnerTRPCContext({});
+export const createTRPCContext = async (opts: CreateNextContextOptions) => {
+  const { req, res } = opts;
+  const session = await getSession(req, res);
+  return createInnerTRPCContext({ session, req, res });
 };
 
 /**

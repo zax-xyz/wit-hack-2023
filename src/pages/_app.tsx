@@ -5,7 +5,11 @@ import globalStyles from "~/styles/globalStyles";
 
 const MyApp: AppType = ({ Component, pageProps }) => {
   globalStyles();
-  return <Component {...pageProps} />;
+  return (
+    <div className="flex min-h-screen bg-gray-100">
+      <Component {...pageProps} />
+    </div>
+  );
 };
 
 export default api.withTRPC(MyApp);

@@ -84,7 +84,7 @@ const Map = ({
 
       const predicted =
         Math.round(
-          (originalScarcity + -1 + 2 * Math.random() + Number.EPSILON) * 10
+          (originalScarcity + -0.5 + Math.random() + Number.EPSILON) * 10
         ) / 10;
       predictedScarcities[year] = predicted;
       setPredictedScarcity({
@@ -200,18 +200,23 @@ const Map = ({
                 </p>
                 <div>
                   <p>Score: {getScarcity(lga.properties.councilname)}</p>
-                  <Slider
-                    defaultValue={[2023]}
-                    onValueChange={([value]) =>
-                      setYears({
-                        ...years,
-                        [lga.properties.councilname]: value!,
-                      })
-                    }
-                    min={2023}
-                    max={2025}
-                    step={1}
-                  />
+                  <div tw="flex gap-2">
+                    <span>
+                      Year: {years[lga.properties.councilname] ?? 2023}
+                    </span>
+                    <Slider
+                      defaultValue={[2023]}
+                      onValueChange={([value]) =>
+                        setYears({
+                          ...years,
+                          [lga.properties.councilname]: value!,
+                        })
+                      }
+                      min={2023}
+                      max={2025}
+                      step={1}
+                    />
+                  </div>
                 </div>
                 <p
                   css={{

@@ -4,7 +4,7 @@ import {
   ArrowTopRightOnSquareIcon,
   ExclamationCircleIcon,
 } from "@heroicons/react/24/outline";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import MapGl, {
   type GeoJSONSourceRaw,
   Layer,
@@ -26,6 +26,7 @@ import {
 import { getIsAuthenticated } from "~/utils/getUser";
 import Navbar from "~/components/Navbar";
 import { type LGAs } from "~/server/api/routers/data";
+import Slider from "~/components/Slider";
 
 const StyledPopup = styled(Popup, {
   ...tw`filter drop-shadow-md`,
@@ -58,9 +59,42 @@ const Map = ({
 
   const [showPopup, setShowPopup] = useState(false);
   const [popupCoords, setPopupCoords] = useState({ longitude: 0, latitude: 0 });
+  const [predictedScarcity, setPredictedScarcity] = useState<
+    Record<string, Record<string, number>>
+  >({});
+  const [years, setYears] = useState<Record<string, number>>({});
 
   const { data } = api.data.getLGAs.useQuery();
   const { data: scarcityLevels } = api.data.getScarcityLevels.useQuery();
+
+  const getScarcity = useCallback(
+    (council: string) => {
+      const originalScarcity = scarcityLevels![council]!;
+
+      const year = years[council];
+      if (year === undefined || year === 2023) {
+        return originalScarcity;
+      }
+
+      const predictedScarcities = { ...predictedScarcity[council] };
+      const prevPredicted = predictedScarcities[year];
+      if (prevPredicted !== undefined) {
+        return prevPredicted;
+      }
+
+      const predicted =
+        Math.round(
+          (originalScarcity + -1 + 2 * Math.random() + Number.EPSILON) * 10
+        ) / 10;
+      predictedScarcities[year] = predicted;
+      setPredictedScarcity({
+        ...predictedScarcity,
+        [council]: predictedScarcities,
+      });
+      return predicted;
+    },
+    [predictedScarcity, years, scarcityLevels]
+  );
 
   const lgas = useMemo(() => {
     if (!data) {
@@ -164,7 +198,21 @@ const Map = ({
                   )}{" "}
                   {lga.properties.councilname}, NSW
                 </p>
-                <p>Score: {scarcityLevels[lga.properties.councilname]}</p>
+                <div>
+                  <p>Score: {getScarcity(lga.properties.councilname)}</p>
+                  <Slider
+                    defaultValue={[2023]}
+                    onValueChange={([value]) =>
+                      setYears({
+                        ...years,
+                        [lga.properties.councilname]: value!,
+                      })
+                    }
+                    min={2023}
+                    max={2025}
+                    step={1}
+                  />
+                </div>
                 <p
                   css={{
                     ...(i < LGAsNeedsNotMet.features!.length &&
